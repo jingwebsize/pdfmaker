@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>'Hello, world!' base64 example</title>
+    <style type="text/css">
+        #the-canvas {
+            border:1px solid black;
+        }
+    </style>
+</head>
+<body>
+<!-- 自己的路径 -->
+<script src="../build/pdf.js"></script>
+<h1>PDF.js 'Hello, base64!' example</h1>
+<canvas id="the-canvas"></canvas>
+</body>
+<script type="text/javascript">
+    //直接使用官网例子中的文档吧
+    //atob(  后台返回的把文档进行base64编码之后的String  )
+    var pdfData = atob('<?php echo $pdfdata?>');
+    var CMAP_URL = './cmaps/';//自己的pdfjs字库的路径
+    pdfjsLib.GlobalWorkerOptions.workerSrc ='../build/pdf.worker.js';//自己的路径
+    var loadingTask = pdfjsLib.getDocument({
+        data: pdfData,
+        cMapUrl: CMAP_URL,
+        cMapPacked: true,
+    }); 
+    loadingTask.promise.then(function(pdf) {
+        pdf.getPage(1).then(function(page) {
+            var scale = 1.5;
+            var viewport = page.getViewport(scale);
+            var canvas = document.getElementById('the-canvas');
+            var context = canvas.getContext('2d');
+            canvas.height = viewport.height;
+            canvas.width = viewport.width;
+            var renderContext = {
+                canvasContext: context,
+                viewport: viewport,
+            };
+            page.render(renderContext);
+        });
+    });
+</script>

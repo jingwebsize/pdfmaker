@@ -36,15 +36,33 @@ See https://github.com/adobe-type-tools/cmap-resources
 <link rel="resource" type="application/l10n" href="locale/locale.properties">
 <script src="../build/pdf.js"></script>
 <script>
-  var DEFAULT_URL = "";//注意，删除的变量在这里重新定义
-  var PDFData = '<?php echo $pdfdata?>';
-  var rawLength = PDFData.length;
-  //转换成pdf.js能直接解析的Uint8Array类型,见pdf.js-4068
-  var array = new Uint8Array(new ArrayBuffer(rawLength));  
-  for(i = 0; i < rawLength; i++) {
-    array[i] = PDFData.charCodeAt(i) & 0xff;
-  }
-DEFAULT_URL = array;
+//   var defaultUrl = "";//注意，删除的变量在这里重新定义
+//   var PDFData = '<?php echo $pdfdata?>';
+//   var rawLength = PDFData.length;
+//   //转换成pdf.js能直接解析的Uint8Array类型,见pdf.js-4068
+//   var array = new Uint8Array(new ArrayBuffer(rawLength));  
+//   for(i = 0; i < rawLength; i++) {
+//     array[i] = PDFData.charCodeAt(i) & 0xff;
+//   }
+// defaultUrl = array;
+
+var BASE64_MARKER = ';base64,';
+var set_defaultUrl = convertDataURIToBinary('<?php echo $pdfdata;?>');
+        function convertDataURIToBinary(dataURI) {
+            var base64Index = dataURI.indexOf(BASE64_MARKER) + BASE64_MARKER.length;
+            var newUrl = dataURI.substring(base64Index).replace(/[\n\r]/g,''); 
+            // dataURI = dataURI.replace(/[\n\r]/g, '');
+            var raw = window.atob(dataURI);
+            var rawLength = raw.length;
+            var array = new Uint8Array(new ArrayBuffer(rawLength));
+            for (i = 0; i < rawLength; i++) {
+                array[i] = raw.charCodeAt(i);
+            }
+            return array;
+        }
+let blob = new Blob([set_defaultUrl], { type: 'application/pdf' }); //用blob生成pdf文件,返回PDF文件
+set_defaultUrl = window.URL.createObjectURL(blob);
+// var baseUrl = set_defaultUrl;
 </script>
 
   <script src="viewer.js"></script>
@@ -134,7 +152,7 @@ DEFAULT_URL = array;
               <span data-l10n-id="presentation_mode_label">Presentation Mode</span>
             </button>
 
-            <button id="secondaryOpenFile" class="secondaryToolbarButton openFile visibleLargeView" title="Open File" tabindex="52" data-l10n-id="open_file">
+            <button id="secondaryOpenFile" class="secondaryToolbarButton openFile visibleLargeView" style="visibility: hidden;" title="Open File" tabindex="52" data-l10n-id="open_file">
               <span data-l10n-id="open_file_label">Open</span>
             </button>
 
@@ -142,7 +160,7 @@ DEFAULT_URL = array;
               <span data-l10n-id="print_label">Print</span>
             </button>
 
-            <button id="secondaryDownload" class="secondaryToolbarButton download visibleMediumView" title="Download" tabindex="54" data-l10n-id="download">
+            <button id="secondaryDownload" class="secondaryToolbarButton download visibleMediumView" style="visibility: hidden;" title="Download" tabindex="54" data-l10n-id="download">
               <span data-l10n-id="download_label">Download</span>
             </button>
 
@@ -233,7 +251,7 @@ DEFAULT_URL = array;
                 <span id="numPages" class="toolbarLabel"></span>
               </div>
               <div id="toolbarViewerRight">
-                <button id="presentationMode" class="toolbarButton presentationMode hiddenLargeView" style="visibility: hidden;" title="Switch to Presentation Mode" tabindex="31" data-l10n-id="presentation_mode">
+                <button id="presentationMode" class="toolbarButton presentationMode hiddenLargeView" title="Switch to Presentation Mode" tabindex="31" data-l10n-id="presentation_mode">
                   <span data-l10n-id="presentation_mode_label">Presentation Mode</span>
                 </button>
 
