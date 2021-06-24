@@ -54,9 +54,9 @@ for ($pageNo = 1; $pageNo <= $pageCount; $pageNo++){
         $center_x = rand(0,$size['width']/2);
         $center_y = rand(0,$size['height']/2);
         // $dx = rand(0,$size['width']/4);
-        $dy = rand(0,$size['height']/4);
+        $dy = rand(0,$size['height']/2);
         for($i=0;$i<2;$i++){
-            $pdf->SetXY($center_x, $center_y+$dy*$i);
+            $pdf->SetXY($center_x+$dy*$i, $center_y+$dy*$i);
             $pdf->Write(5,$string);
         }
    }
